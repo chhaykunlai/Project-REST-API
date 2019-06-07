@@ -17,7 +17,7 @@ const UserSchema = new Schema({
     },
     emailAddress: {
         type: String,
-        unique: [true, 'Email address exists'],
+        unique: true,
         required: [true, 'Email addresse is required'],
         trim: true
     },
@@ -27,6 +27,27 @@ const UserSchema = new Schema({
         trim: true
     }
 });
+
+UserSchema.statics.authenticate = (username, password, callback) => {
+    User.findOne({emailAddress: username})
+        .exec((error, user) => {
+            if (error) {
+                return callback(error);
+            }
+            if (!user) {
+                let notFoundError = new Error('Email does not exist');
+                notFoundError.status = 401;
+                return callback(notFoundError);
+            }
+
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    return callback(null, user);
+                }
+                return callback();
+            });
+        });
+};
 
 // hash password before saving user
 UserSchema.pre('save', function (next) {
@@ -42,7 +63,10 @@ UserSchema.pre('save', function (next) {
 });
 
 const CourseSchema = new Schema({
-    user: UserSchema,
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     title:  {
         type: String,
         required: [true, 'Title is required'],
@@ -55,12 +79,10 @@ const CourseSchema = new Schema({
     },
     estimatedTime:  {
         type: String,
-        required: [true, 'Estimated time is required'],
         trim: true
     },
     materialsNeeded:  {
         type: String,
-        required: [true, 'Materials needed is required'],
         trim: true
     }
 });

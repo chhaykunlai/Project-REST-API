@@ -56,6 +56,7 @@ app.use((err, req, res, next) => {
   }
 
   res.status(err.status || 500).json({
+    status: 'Fails',
     message: err.message,
     error: {},
   });
