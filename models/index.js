@@ -62,6 +62,8 @@ UserSchema.pre('save', function (next) {
     });
 });
 
+const User = mongoose.model('User', UserSchema);
+
 const CourseSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -88,7 +90,6 @@ const CourseSchema = new Schema({
 });
 
 const Course = mongoose.model('Course', CourseSchema);
-const User = mongoose.model('User', UserSchema);
 
 module.exports.Course = Course;
 module.exports.User = User;
